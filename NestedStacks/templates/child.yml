@@ -1,0 +1,32 @@
+Parameters:
+ VPCId:
+   Type: String
+   Default: vpc-cacf29b0
+ VPCCidr:
+   Type: String
+ CostCenter:
+   Type: String
+
+Resources:
+ Subnet:
+  Type: AWS::EC2::Subnet
+  Properties:
+    AvailabilityZone: 
+      Fn::Select:
+      - "1"
+      - Fn::GetAZs: ""
+    CidrBlock:
+      Fn::Select:
+        - 12
+        - Fn::Cidr:
+          - !Ref VPCCidr
+          - 13
+          - 12
+    MapPublicIpOnLaunch: true
+    Tags:
+      - Key: CostCenter
+        Value: !Ref CostCenter
+    VpcId: !Ref VPCId
+Outputs:
+  SubnetId:
+   Value: !Ref Subnet
