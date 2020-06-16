@@ -59,6 +59,7 @@ cfn-signal --success|-s signal.to.send \
         --url AWS CloudFormation.endpoint
 '''
 
+
 > Another way to signal back to CFN is using WaitCondition with WaitConditionHandle.
 
 You can use a wait condition for situations like the following:
@@ -69,6 +70,11 @@ You can use a wait condition for situations like the following:
 
 WaitConditionHandle creates a pre-signed S3 URL which the service polls to to get response signal abck from the stack resource.
 
+SignalResource API
+--
+Sends a signal to the specified resource with a success or failure status. You can use the SignalResource API in conjunction with a creation policy or update policy. AWS CloudFormation doesn't proceed with a stack creation or update until resources receive the required number of signals or the timeout period is exceeded. The SignalResource API is useful in cases where you want to send signals from anywhere other than an Amazon EC2 instance. 
+
+Example: aws cloudformation signal-resource --stack-name ec2helperscript --logical-resource-id Instance --status SUCCESS --unique-id i-01a87d55951bc6ab0
 
 cfn-hup:
 ---
