@@ -105,8 +105,9 @@ hooks.d Directory -> contains the hooks.conf files. Location: /etc/cfn/
 
 File locations:
 --
-~~~
+
 Linux
+~~~
 cfn-init Logs: /var/cfn/cfn-init
 cfn-bootstrap: /opt/aws/bin
 cfn-hup.conf: /etc/cfn
