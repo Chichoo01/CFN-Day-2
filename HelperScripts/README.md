@@ -105,15 +105,17 @@ hooks.d Directory -> contains the hooks.conf files. Location: /etc/cfn/
 
 File locations:
 --
+~~~
 Linux
 cfn-init Logs: /var/cfn/cfn-init
 cfn-bootstrap: /opt/aws/bin
 cfn-hup.conf: /etc/cfn
 hooks.d dir: /etc/cfn/hooks.d/
-
+~~~
 Windows: 
-
+~~~
 cfn-init Logs: C:\cfn\log\cfn-init.log
 EC2 Config log: C:\Program Files\Amazon\Ec2ConfigService\Logs\Ec2ConfigLog.txt
 cfn-hup.conf: c:\\cfn\\cfn-hup.conf
 hooks.d dir: c:\\cfn\\hooks.d\
+~~~
