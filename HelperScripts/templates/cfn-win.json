@@ -1,0 +1,77 @@
+{
+    "Resources": {
+        
+        "SharePointFoundation": {
+            "Type" : "AWS::EC2::Instance",
+            "Metadata" : {
+            "AWS::CloudFormation::Init" : {
+                "config" : {
+                    "files" : {
+                        "c:\\cfn\\cfn-hup.conf" : {
+                          "content" : { "Fn::Join" : ["", [
+                            "[main]\n",
+                            "stack=", { "Ref" : "AWS::StackName" }, "\n",
+                            "region=", { "Ref" : "AWS::Region" }, "\n"
+                            ]]}
+                        },
+                        "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf" : {
+                          "content": { "Fn::Join" : ["", [
+                            "[cfn-auto-reloader-hook]\n",
+                            "triggers=post.update\n",
+                            "path=Resources.SharePointFoundation.Metadata.AWS::CloudFormation::Init\n",
+                            "action=cfn-init.exe -v -s ", { "Ref" : "AWS::StackName" },
+                                                           " -r SharePointFoundation",
+                                                           " --region ", { "Ref" : "AWS::Region" }, "\n"
+                          ]]}
+                        },
+                        "C:\\SharePoint\\SharePointFoundation2010.exe" : {
+                          "source" : "http://d3adzpja92utk0.cloudfront.net/SharePointFoundation.exe"
+                        }
+                      },
+                    "commands" : {
+                        "1-extract" : {
+                            "command" : "C:\\SharePoint\\SharePointFoundation2010.exe /extract:C:\\SharePoint\\SPF2010 /quiet /log:C:\\SharePoint\\SharePointFoundation2010-extract.log"
+                        },
+                        "2-prereq" : {
+                            "command" : "C:\\SharePoint\\SPF2010\\PrerequisiteInstaller.exe /unattended"
+                        },
+                        "3-install" : {
+                            "command" : "C:\\SharePoint\\SPF2010\\setup.exe /config C:\\SharePoint\\SPF2010\\Files\\SetupSilent\\config.xml"
+                        }
+                    }
+                }
+            }
+        },       
+            "Properties": {
+                "InstanceType" : "t2.large",
+                "ImageId" : "ami-0e3f439cc5945f32b",
+                "SecurityGroupIds" :["sg-da66de91"] ,
+                "KeyName" : "ec2login",
+                "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+                    "<script>\n",
+                
+                    "cfn-init.exe -v -s ", { "Ref" : "AWS::StackName" },
+                    " -r SharePointFoundation",
+                    " --region ", { "Ref" : "AWS::Region" }, "\n",
+                
+                    "cfn-signal.exe -e %ERRORLEVEL% ", { "Fn::Base64" : { "Ref" : "SharePointFoundationWaitHandle" }}, "\n",
+                
+                    "</script>"
+                    ]]}}
+                }
+         } ,              
+        "SharePointFoundationWaitHandle" : {
+            "Type" : "AWS::CloudFormation::WaitConditionHandle"
+            },
+            
+            "SharePointFoundationWaitCondition" : {
+            "Type" : "AWS::CloudFormation::WaitCondition",
+            "DependsOn" : "SharePointFoundation",
+            "Properties" : {
+                "Handle" : {"Ref" : "SharePointFoundationWaitHandle"},
+                "Timeout" : "3600"
+            }
+            }
+ }
+  }
+        
