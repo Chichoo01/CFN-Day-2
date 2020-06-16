@@ -12,7 +12,7 @@ Doesn’t not need credentials. It checks for stack membership and limits the sc
 
 Syntax:
 
-'''
+~~~
 cfn-init --stack|-s stack.name.or.id \
          --resource|-r logical.resource.id \
          --region region
@@ -26,7 +26,7 @@ cfn-init --stack|-s stack.name.or.id \
          --https-proxy HTTPS.proxy \
          --verbose|-v
 
-,,,
+~~~
 
 AWS::CloudFormation::Init Metadata structure: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-init.html
 
@@ -43,7 +43,7 @@ use the cfn-signal script in conjunction with a CreationPolicy or an Auto Scalin
 
 Syntax:
 
-'''
+~~~
 cfn-signal --success|-s signal.to.send \
         --access-key access.key \
         --credential-file|-f credential.file \
@@ -57,7 +57,7 @@ cfn-signal --success|-s signal.to.send \
         --secret-key secret.key \
         --stack stack.name.or.stack.ID \
         --url AWS CloudFormation.endpoint
-'''
+~~~
 
 
 > Another way to signal back to CFN is using WaitCondition with WaitConditionHandle.
@@ -83,10 +83,10 @@ The cfn-hup helper is a daemon that detects changes in resource metadata and run
 
 cfn-hup.conf -> stores the name of the stack and the AWS credentials that the cfn-hup daemon targets.
 
-'''
+~~~
 [main]
 stack=<stack-name-or-id>  
-'''
+~~~
 
 On Windows, the default path is system_drive\cfn. On Linux, the default path is /etc/cfn. 
  
@@ -103,4 +103,17 @@ runas=<runas user>
 hooks.d Directory -> contains the hooks.conf files. Location: /etc/cfn/
 
 
+File locations:
+--
+Linux
+cfn-init Logs: /var/cfn/cfn-init
+cfn-bootstrap: /opt/aws/bin
+cfn-hup.conf: /etc/cfn
+hooks.d dir: /etc/cfn/hooks.d/
 
+Windows: 
+
+cfn-init Logs: C:\cfn\log\cfn-init.log
+EC2 Config log: C:\Program Files\Amazon\Ec2ConfigService\Logs\Ec2ConfigLog.txt
+cfn-hup.conf: c:\\cfn\\cfn-hup.conf
+hooks.d dir: c:\\cfn\\hooks.d\
