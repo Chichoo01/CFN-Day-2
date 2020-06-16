@@ -13,14 +13,14 @@ CreationPolicy
 
 Syntax:
 
-,,,
+~~~
 CreationPolicy:
   AutoScalingCreationPolicy:
     MinSuccessfulInstancesPercent: Integer
   ResourceSignal:    
     Count: Integer
     Timeout: String
-,,,
+~~~
 
 UpdatePolicy
 --
@@ -33,17 +33,17 @@ Available UpdatePolicy:
 1) AutoScalingReplacingUpdate Policy
 
 Creates a new ASG and replaces it with the old one once stabilized. 
-,,,
+~~~
 UpdatePolicy:
   AutoScalingReplacingUpdate:
     WillReplace: Boolean
-,,,
+~~~
 
 2) AutoScalingRollingUpdate Policy
 
 Does rolling updates on the ASG
 
-'''
+~~~
 UpdatePolicy:
   AutoScalingRollingUpdate:
     MaxBatchSize: Integer
@@ -53,7 +53,7 @@ UpdatePolicy:
     SuspendProcesses:
       - List of processes
     WaitOnResourceSignals: Boolean
-'''
+~~~
 
 3) AutoScalingScheduledAction Policy
 
@@ -64,13 +64,13 @@ Deletion Policy
 
 Example:
 
-'''
+~~~
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
   myS3Bucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
-'''
+~~~
 
 Options:
 
