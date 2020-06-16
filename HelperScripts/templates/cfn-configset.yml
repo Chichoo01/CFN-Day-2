@@ -65,7 +65,7 @@ Resources:
                   enabled: "true"
                   ensureRunning: "true"
             files:
-              '/var/www/html/index2.html':
+              '/var/www/html/index.html':
                   content: 
                     Fn::Sub: |
                       <h1>Hello from Stack 2 ${AWS::StackName}</h1>
