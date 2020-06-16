@@ -108,7 +108,7 @@ File locations:
 
 Linux
 ~~~
-cfn-init Logs: /var/cfn/cfn-init
+cfn-init Logs: /var/log/cfn-init.log
 cfn-bootstrap: /opt/aws/bin
 cfn-hup.conf: /etc/cfn
 hooks.d dir: /etc/cfn/hooks.d/
