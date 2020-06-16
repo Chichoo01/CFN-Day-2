@@ -1,0 +1,134 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "RedIs",
+	"Parameters": {
+		"VPC": {
+			"Type": "AWS::EC2::VPC::Id"
+		},
+		"SubnetA": {
+			"Type": "AWS::EC2::Subnet::Id"
+		},
+		"SubnetB": {
+			"Type": "AWS::EC2::Subnet::Id"
+		},
+		"KeyName": {
+			"Type": "AWS::EC2::KeyPair::KeyName",
+			"Default": "mykey"
+		}
+	},
+	"Resources": {
+		"CacheSecurityGroup": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Properties": {
+				"GroupDescription": "cache",
+				"VpcId": {"Ref": "VPC"},
+				"SecurityGroupIngress": [
+					{
+						"IpProtocol": "tcp",
+						"FromPort": 6379,
+						"ToPort": 6379,
+						"CidrIp": "0.0.0.0/0"
+					}
+				]
+			}
+		},
+		"CacheSubnetGroup": {
+			"Type": "AWS::ElastiCache::SubnetGroup",
+			"Properties": {
+				"Description": "cache",
+				"SubnetIds": [
+					{
+						"Ref": "SubnetA"
+					},
+					{
+						"Ref": "SubnetB"
+					}
+				]
+			}
+		},
+		"Cache": {
+			"Type": "AWS::ElastiCache::CacheCluster",
+			"Properties": {
+				"CacheNodeType": "cache.t2.micro",
+                "ClusterName":"Cross-Profile-RedIs-final",
+                "NumCacheNodes": 1,
+				"CacheSubnetGroupName": {"Ref": "CacheSubnetGroup"},
+				"Engine": "redis",
+				"VpcSecurityGroupIds": [ {"Ref":"CacheSecurityGroup"}
+					
+				]
+			}
+        },
+        "myReplicationGroup": {
+            "Type": "AWS::ElastiCache::ReplicationGroup",
+            "Properties":{
+            "ReplicationGroupDescription": "Test-Replication",
+            "NumCacheClusters": "2",
+            "Engine": "redis",
+            "CacheNodeType": "cache.t2.micro",
+            "AutoMinorVersionUpgrade": "true",
+            "AutomaticFailoverEnabled": "true",
+            "CacheSubnetGroupName": { "Ref": "CacheSubnetGroup"},
+            "EngineVersion": "2.8.6",
+            "PreferredMaintenanceWindow": "wed:09:25-wed:22:30",
+            "SnapshotRetentionLimit": "4",
+            "SnapshotWindow": "03:30-05:30"
+        },
+        "DependsOn" : "Cache"
+    },
+    "EC2instancetoConnect":{
+
+        "Type":"AWS::EC2::Instance",
+        "DependsOn" : "Cache",
+        "Properties":{
+            "ImageId" : "ami-062f7200baf2fa504",
+            "SubnetId" : {"Ref":"SubnetA"},
+            "KeyName" : {"Ref": "KeyName"},
+            "InstanceType": "t2.micro",
+            "UserData": { 
+                "Fn::Base64": {
+                    "Fn::Join":[
+                        "",[
+                    "#!/bin/bash -x\n",
+                    "sudo yum instal -y gcc\n",
+                    "cd /home/ec2-user\n",
+                    "wget http://download.redis.io/redis-stable.tar.gz\n",
+                    "tar xvzf redis-stable.tar.gz\n",
+                    "cd redis-stable\n",
+                    "make\n",
+                    "/home/ec2-user/redis-stable/src/redis-cli -c -h ",
+                    { "Fn::GetAtt" : [ "Cache", "RedisEndpoint.Address" ] },
+                    " -p 6379",
+                    " set a \"helloelasticcache\"\n",
+                    "/opt/aws/bin/cfn-signal -e ",
+                    " --stack ",
+                    {
+                        "Ref": "AWS::StackName"
+                    },
+                    " --resource EC2instancetoConnect",
+                    " --region ",
+                    {
+                        "Ref": "AWS::Region"
+                    },
+                    "\n"
+                ]
+                ]
+                }
+            }
+        },
+        "CreationPolicy":{
+            "ResourceSignal":{
+                "Count":1,
+                "Timeout":"PT15M"
+            }
+        }
+
+        }
+    },
+ "Outputs":{
+     "CacheAddress":{
+       "Value": { "Fn::GetAtt" : [ "Cache", "RedisEndpoint.Address" ] },
+        "Description": "DNS name"
+        }
+    }
+}
