@@ -59,6 +59,17 @@ cfn-signal --success|-s signal.to.send \
         --url AWS CloudFormation.endpoint
 '''
 
+> Another way to signal back to CFN is using WaitCondition with WaitConditionHandle.
+
+You can use a wait condition for situations like the following:
+
+    To coordinate stack resource creation with configuration actions that are external to the stack creation
+
+    To track the status of a configuration process
+
+WaitConditionHandle creates a pre-signed S3 URL which the service polls to to get response signal abck from the stack resource.
+
+
 cfn-hup:
 ---
 
