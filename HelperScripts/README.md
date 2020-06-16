@@ -6,7 +6,7 @@ cfn-init:
 * Write files to disk 
 * Enable/disable and start/stop services
 
- - > Updating file in cfn-init creates a .bak file in the same directory.
+> Updating file in cfn-init creates a .bak file in the same directory.
 
 Doesn’t not need credentials. It checks for stack membership and limits the scope of the call to the stack that the instance belongs to. 
 
