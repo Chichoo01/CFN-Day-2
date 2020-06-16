@@ -1,0 +1,63 @@
+Parameters:
+  InstanceType:
+    Default: t2.large
+    Type: String
+    AllowedValues:
+      - t2.large
+      - m5.large
+      - r5.large
+    Description: Choose an compatible instance type
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Choose the keypair for SSH access
+  VPC:
+    Type: AWS::EC2::VPC::Id
+    Description: Choose the VPC to launch the instance into. 
+  BaseSG:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Choose the SG to associated with the instace
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Choose the subnet to place the instance into. 
+  ImageId:
+    Type: String
+    Default: "ami-0ff8a91507f77f867"
+    Description: Image ID to be used.
+
+Resources:
+    Instance:
+      CreationPolicy:
+          ResourceSignal:    
+            Count: 1
+            Timeout: PT10M
+      Type: AWS::EC2::Instance
+      ### Metadata section that the helper script reads for or boot-strapping actions to be performed.
+      Metadata:
+        AWS::CloudFormation::Init:
+          config:                                   ### 'config' is the default key that needs to be used
+            packages:                               ### installing the HTTPD package
+              yum:
+                httpd: []
+            services:
+              sysvinit:
+                httpd:
+                  enabled: "true"
+                  ensureRunning: "true"
+            files:
+              '/var/www/html/index.html':
+                  content: |
+                    <h1>Hello from Stack ${AWS::StackName}</h1>
+      Properties:
+        SubnetId: !Ref SubnetId
+        ImageId: !Ref ImageId
+        KeyName: !Ref KeyName
+        InstanceType: !Ref InstanceType
+        SecurityGroupIds:
+          - !Ref BaseSG
+        UserData:
+          Fn::Base64: 
+            Fn::Sub: |
+              #!/bin/bash
+              echo "Invoking cfn-init helper script..."
+              /opt/aws/bin/cfn-init -s ${AWS::StackName} -r Instance --region ${AWS::Region}
+              /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource Instance --region ${AWS::Region}
