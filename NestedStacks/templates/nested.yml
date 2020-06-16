@@ -1,0 +1,45 @@
+Parameters:
+ ImageId:
+  Type: AWS::EC2::Image::Id
+ CostCenter:
+  Type: String
+ SecurityGroupId:
+  Type: AWS::EC2::SecurityGroup::Id
+Conditions:
+ IsRegionIAD:
+  Fn::Equals:
+    - "us-east-1"
+    - Ref: "AWS::Region"
+
+Resources:
+  Instance:
+    Condition: IsRegionIAD
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: !Ref ImageId
+      SubnetId: 
+        Fn::GetAtt: 
+          - ChildStack
+          - Outputs.SubnetId
+      SecurityGroupIds:
+        - Ref: SecurityGroupId
+      UserData:
+        Fn::Base64:
+          Fn::Sub: | 
+            #!/bin/bash -x
+            yum update && yum install httpd -y
+            echo "Hello" >> /var/www/html/index.html
+  ChildStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://sarav-bucket1.s3.amazonaws.com/childstack.yml
+      Parameters: 
+        VPCCidr: 172.31.0.0/16
+        CostCenter: !Ref CostCenter
+
+Outputs:
+  SubnetfromChild:
+   Value: !GetAtt ChildStack.Outputs.SubnetId
+
+   
